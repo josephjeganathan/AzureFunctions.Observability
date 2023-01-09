@@ -1,0 +1,46 @@
+{
+  "Serilog": {
+    "Using": [
+      "Serilog.Sinks.Console",
+      "NewRelic.LogEnrichers.Serilog",
+      "NewRelic.SerilogSink",
+      "Serilog.Expressions"
+    ],
+    "MinimumLevel": {
+      "Default": "Information",
+      "Override": {
+        "Microsoft": "Warning",
+        "System": "Warning",
+        "Azure": "Warning"
+      }
+    },
+    "WriteTo": [
+      {
+        "Name": "NewRelicLogs",
+        "Args": {
+          "endpointUrl": "https://log-api.newrelic.com/log/v1",
+          "applicationName": "AzureFunctions.Observability",
+          "licenseKey": "<replace-with-arm-&-key-vault-ref>"
+        }
+      }
+    ],
+    "Filter": [
+      {
+        "Name": "ByExcluding",
+        "Args": {
+          "expression": "(StartsWith(SourceContext, 'Azure-') or StartsWith(SourceContext, 'Host.')) and (@l = 'Information' or @l = 'Debug' or @l = 'Trace')"
+        }
+      }
+    ],
+    "Enrich": [
+      "FromLogContext",
+      "WithMachineName",
+      "WithThreadId",
+      "WithNewRelicLogsInContext"
+    ],
+    "Properties": {
+      "Application": "AzureFunctions.Observability",
+      "Environment": "Local"
+    }
+  }
+}
